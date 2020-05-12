@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ToDo List App</title>
+    <link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
 </head>
 <body>
     <h1>ToDo List</h1>
@@ -23,5 +24,11 @@
     <br>
 
     <input type="button" value="Add ToDo Item">
+
+    <script src="https://unpkg.com/js-datepicker"></script>
+    <script>
+        const picker = datepicker("#due-date");
+        picker.setMin(new Date()); // Set to today's date
+    </script>
 </body>
 </html>
