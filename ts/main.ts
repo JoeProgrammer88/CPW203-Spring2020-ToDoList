@@ -72,6 +72,9 @@ function displayToDoItem(item:ToDoItem):void{
 
     // ex. <div class="todo completed"></div> or <div class="todo"></div>
     let itemDiv = document.createElement("div");
+
+    itemDiv.onclick = markAsComplete;
+
     itemDiv.classList.add("todo");
     if(item.isCompleted){
         itemDiv.classList.add("completed");
@@ -95,5 +98,14 @@ function displayToDoItem(item:ToDoItem):void{
     }
 }
 
-// Task: Allow user to mark a ToDoItem as completed
+function markAsComplete(){
+    let itemDiv = <HTMLElement>this;
+    console.log(itemDiv);
+    itemDiv.classList.add("completed");
+
+    let completedItems = document.getElementById("complete-items");
+    console.log(completedItems);
+    completedItems.appendChild(itemDiv);
+}
+
 // Task: Store ToDoItems in web storage
