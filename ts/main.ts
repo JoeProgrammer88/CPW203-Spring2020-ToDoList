@@ -24,17 +24,25 @@ window.onload = function(){
 function loadSavedItems(){
     let itemArray = getToDoItems(); // read from storage
 
-    for(let i = 0; i < itemArray.length; i++){
-        let currItem = itemArray[i];
-        displayToDoItem(currItem);
+    if(itemArray != null){
+        for(let i = 0; i < itemArray.length; i++){
+            let currItem = itemArray[i];
+            displayToDoItem(currItem);
+        }
     }
+    
 }
 
 function main(){
     if(isValid()){
         let item = getToDoItem();
-        displayToDoItem(item);
-        saveToDo(item);
+        if(!doesTodoTitleExist(item.title)){
+            displayToDoItem(item);
+            saveToDo(item);
+        }
+        else{
+            alert("That todo already exists");
+        }
     }
 }
 
@@ -86,8 +94,8 @@ function displayToDoItem(item:ToDoItem):void{
 
     // ex. <div class="todo completed"></div> or <div class="todo"></div>
     let itemDiv = document.createElement("div");
-
-    itemDiv.onclick = markAsComplete;
+    itemDiv.setAttribute("data-task-title", item.title);
+    itemDiv.onclick = toggleComplete;
 
     itemDiv.classList.add("todo");
     if(item.isCompleted){
@@ -112,18 +120,73 @@ function displayToDoItem(item:ToDoItem):void{
     }
 }
 
-function markAsComplete(){
+/**
+ * If the clicked item was incomplete, it will be marked as completed.
+ * Otherwise it will be marked incomplete
+ */
+function toggleComplete(){
     let itemDiv = <HTMLElement>this;
+    console.log("Item div is:");
     console.log(itemDiv);
-    itemDiv.classList.add("completed");
 
-    let completedItems = document.getElementById("complete-items");
-    console.log(completedItems);
-    completedItems.appendChild(itemDiv);
+    if(itemDiv.classList.contains("completed")){
+        // Remove complete class if previously marked as completed
+        itemDiv.classList.remove("completed");
+        let incompleteItems = document.getElementById("incomplete-items");
+        incompleteItems.appendChild(itemDiv);
+    }
+    else{
+        // Add completed item to complete-items div
+        itemDiv.classList.add("completed");
+        let completedItems = document.getElementById("complete-items");
+        completedItems.appendChild(itemDiv);
+    }
+
+    let allTodos = getToDoItems();
+    let currentTodoTitle = itemDiv.getAttribute("data-task-title");
+    for(let index = 0; index < allTodos.length; index++){
+        let nextTodo = allTodos[index]; // Get ToDo out of array
+        if(nextTodo.title == currentTodoTitle){
+            nextTodo.isCompleted = !nextTodo.isCompleted; // Flip complete/incomplete
+        }
+    }
+
+    saveAllTodos(allTodos);  // Re-save into storage
 }
 
-// Task: Store ToDoItems in web storage
+/**
+ * Clear all current todos from storage
+ * and save a new list
+ * @param allTodos The list to save
+ */
+function saveAllTodos(allTodos: ToDoItem[]) {
+    localStorage.setItem(todokey, ""); // Clear current items
+    let allItemsString = JSON.stringify(allTodos); // Get new storage string with all Todos
+    localStorage.setItem(todokey, allItemsString);
+}
 
+function doesTodoTitleExist(title:string){
+    let allTodos = getToDoItems();
+
+    if(allTodos == null){
+        return false;
+    }
+    
+    for(let index = 0; index < allTodos.length; index++){
+        
+        let currentTodo = allTodos[index];
+        if(currentTodo.title == title){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Save a new item in storage
+ * @param item The item to save
+ */
 function saveToDo(item:ToDoItem):void{
     let currItems = getToDoItems();
     if(currItems == null){ // No items found
